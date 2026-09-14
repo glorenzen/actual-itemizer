@@ -1,5 +1,6 @@
 import * as api from "@actual-app/api";
 import { randomUUID } from "node:crypto";
+import { mkdirSync } from "node:fs";
 import { config } from "./config.js";
 
 export interface Category {
@@ -26,6 +27,8 @@ let initialized = false;
 
 export async function initActual(): Promise<void> {
   if (initialized) return;
+  // @actual-app/api expects dataDir to already exist; it won't create it.
+  mkdirSync(config.actual.dataDir, { recursive: true });
   await api.init({
     serverURL: config.actual.serverURL,
     password: config.actual.password,
