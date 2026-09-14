@@ -3,6 +3,9 @@ dist/
 .env
 *.sqlite
 *.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
 .DS_Store
 docs/transcripts
 .vscode
+server/.actual-cache
