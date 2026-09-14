@@ -14,6 +14,9 @@ export const config = {
     password: required("ACTUAL_PASSWORD"),
     syncId: required("ACTUAL_SYNC_ID"),
     dataDir: process.env.ACTUAL_DATA_DIR ?? "./.actual-cache",
+    // Only needed if the budget file has end-to-end encryption enabled;
+    // this is separate from the server login password above.
+    e2ePassword: process.env.ACTUAL_E2E_PASSWORD || undefined,
   },
   localai: {
     baseURL: required("LOCALAI_BASE_URL"),

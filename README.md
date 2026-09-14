@@ -30,6 +30,22 @@ npm run dev
 The server binds to `127.0.0.1` only and requires every `/api/*` request to
 carry `Authorization: Bearer <SHARED_SECRET>`.
 
+#### Connecting to a remote/HTTPS Actual server
+
+`ACTUAL_SERVER_URL` can point at a remote `https://` server with no extra
+config, as long as it has a certificate trusted by Node (e.g. Let's Encrypt).
+Two things are separate from that:
+
+- **Self-signed certs**: set `NODE_EXTRA_CA_CERTS=/path/to/cert.pem` (or, only
+  if you understand the risk, `NODE_TLS_REJECT_UNAUTHORIZED=0`) as an
+  environment variable for the server process — this is a Node/TLS setting,
+  not something this app configures.
+- **End-to-end encryption**: if the budget file itself has E2E encryption
+  enabled, set `ACTUAL_E2E_PASSWORD` in `.env`. This is the file's encryption
+  password, not your server login password (`ACTUAL_PASSWORD`) — without it,
+  `downloadBudget` will fail to decrypt the file even over a working HTTPS
+  connection.
+
 ### 2. Browser extension
 
 1. Open your browser's extensions page and enable "load unpacked", pointing at

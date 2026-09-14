@@ -31,7 +31,10 @@ export async function initActual(): Promise<void> {
     password: config.actual.password,
     dataDir: config.actual.dataDir,
   });
-  await api.downloadBudget(config.actual.syncId);
+  await api.downloadBudget(
+    config.actual.syncId,
+    config.actual.e2ePassword ? { password: config.actual.e2ePassword } : undefined,
+  );
   initialized = true;
 }
 
