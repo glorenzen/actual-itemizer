@@ -79,9 +79,15 @@ function renderDetail(orderId, categories, candidates, proposed) {
     const select = document.createElement("select");
     for (const cat of categories) {
       const opt = document.createElement("option");
+      const combinedLabel = `${cat.groupName} > ${cat.name}`;
       opt.value = cat.id;
-      opt.textContent = `${cat.groupName} > ${cat.name}`;
-      if (cat.name === allocation.categoryName) opt.selected = true;
+      opt.textContent = combinedLabel;
+      // The LLM is prompted with "Group > Category" labels, so match on that
+      // full label first, falling back to a bare category-name match.
+      const proposedName = allocation.categoryName.trim().toLowerCase();
+      if (combinedLabel.toLowerCase() === proposedName || cat.name.toLowerCase() === proposedName) {
+        opt.selected = true;
+      }
       select.appendChild(opt);
     }
     tr.innerHTML = `<td>${allocation.itemName}</td><td>$${allocation.amount.toFixed(2)}</td>`;
