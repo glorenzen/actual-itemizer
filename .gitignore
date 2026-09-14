@@ -5,3 +5,4 @@ dist/
 *.sqlite-journal
 .DS_Store
 docs/transcripts
+.vscode
