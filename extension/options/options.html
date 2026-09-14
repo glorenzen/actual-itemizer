@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 1rem; max-width: 400px; }
+    label { display: block; margin-top: 0.75rem; }
+    input { width: 100%; padding: 0.4rem; }
+    button { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h3>Actual Itemizer settings</h3>
+  <label>
+    Server URL
+    <input id="serverUrl" placeholder="http://127.0.0.1:4000" />
+  </label>
+  <label>
+    Shared secret
+    <input id="sharedSecret" type="password" />
+  </label>
+  <button id="save">Save</button>
+  <div id="status"></div>
+  <script src="options.js"></script>
+</body>
+</html>

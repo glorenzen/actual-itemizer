@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Actual Itemizer",
+  "version": "0.1.0",
+  "description": "Sends Amazon/Target order line items to your local Actual Itemizer server for category splitting.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://127.0.0.1/*", "http://localhost/*"],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "options_page": "options/options.html",
+  "content_scripts": [
+    {
+      "matches": ["https://www.amazon.com/gp/css/order-details*", "https://www.amazon.com/gp/your-account/order-details*"],
+      "js": ["content/common.js", "content/amazon.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.target.com/orders/*"],
+      "js": ["content/common.js", "content/target.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

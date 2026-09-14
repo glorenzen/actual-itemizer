@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Actual Itemizer — Review Queue</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <header>
+    <h1>Actual Itemizer</h1>
+    <label>
+      Shared secret
+      <input id="secret" type="password" placeholder="Bearer token" />
+    </label>
+  </header>
+
+  <main>
+    <section id="pending-list">
+      <h2>Pending Orders</h2>
+      <ul id="orders"></ul>
+    </section>
+
+    <section id="order-detail" hidden>
+      <h2>Review Order</h2>
+      <div id="detail-content"></div>
+    </section>
+  </main>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
