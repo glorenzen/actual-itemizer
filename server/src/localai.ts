@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { config } from "./config.js";
 import type { Category } from "./actual.js";
+import FEW_SHOT_EXAMPLES from "../data/category-examples.json" with { type: "json" };
 
 export interface OrderItem {
   name: string;
@@ -29,9 +30,11 @@ export async function categorizeOrder(params: {
   categories: Category[];
 }): Promise<CategorizationResult> {
   const categoryList = params.categories.map((c) => `${c.groupName} > ${c.name}`).join("\n");
+  const examplesText = FEW_SHOT_EXAMPLES.map((e) => `- "${e.item}" -> ${e.category}`).join("\n");
 
   const response = await client.chat.completions.create({
     model: config.localai.model,
+    temperature: 0,
     response_format: { type: "json_object" },
     messages: [
       {
@@ -43,9 +46,12 @@ export async function categorizeOrder(params: {
           '"unallocated_amount": number, "notes": string}. ' +
           "`amount` values are in the same currency unit as given (dollars). " +
           "`unallocated_amount` should cover tax/shipping/fees not tied to a specific item. " +
-          "Available categories:\n" +
+          "For ambiguous everyday items, prefer this household's past choices over a generic guess, " +
+          "for example:\n" +
+          examplesText +
+          "\nAvailable categories:\n" +
           categoryList,
-      },
+      },        
       {
         role: "user",
         content: JSON.stringify({
