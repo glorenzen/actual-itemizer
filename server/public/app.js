@@ -28,7 +28,7 @@ async function loadPending() {
     const li = document.createElement("li");
     li.className = "order-row";
     li.textContent = `${order.retailer} — ${order.orderDate} — $${(order.grandTotal / 100).toFixed(2)} (${order.status})`;
-    li.addEventListener("click", () => openOrder(order.id));
+    li.addEventListener("click", () => openOrder(order));
     ordersList.appendChild(li);
   }
 }
@@ -39,14 +39,35 @@ async function getCategories() {
   return categoriesCache;
 }
 
-async function openOrder(orderId) {
+async function openOrder(order) {
   detailSection.hidden = false;
-  detailContent.innerHTML = "<p>Loading…</p>";
+  detailContent.innerHTML = "<p>Loading matching Actual transactions…</p>";
 
-  const [categories, candidates] = await Promise.all([getCategories(), api(`/orders/${orderId}/candidates`)]);
-  const proposed = await api(`/orders/${orderId}/categorize`, { method: "POST" });
+  try {
+    const [categories, candidates] = await Promise.all([
+      getCategories(),
+      api(`/orders/${order.id}/candidates`),
+    ]);
+    let proposed = order.proposed;
+    if (!proposed) {
+      detailContent.innerHTML = "<p>Asking LocalAI for category suggestions…</p>";
+      proposed = await api(`/orders/${order.id}/categorize`, { method: "POST" });
+    }
 
-  renderDetail(orderId, categories, candidates, proposed);
+    renderDetail(order.id, categories, candidates, proposed);
+  } catch (error) {
+    detailContent.innerHTML = `<p class="warning">Unable to load this order: ${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[character]));
 }
 
 function renderDetail(orderId, categories, candidates, proposed) {
