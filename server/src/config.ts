@@ -25,6 +25,7 @@ export const config = {
   server: {
     port: Number(process.env.PORT ?? 4000),
     sharedSecret: required("SHARED_SECRET"),
+    taxRatePercent: Number(process.env.TAX_RATE_PERCENT ?? 0),
   },
   db: {
     path: process.env.DB_PATH ?? "./data/orders.sqlite",
