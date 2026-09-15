@@ -9,3 +9,4 @@ dist/
 docs/transcripts
 .vscode
 server/.actual-cache
+server/data/category-examples.json
