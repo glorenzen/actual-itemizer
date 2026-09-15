@@ -17,6 +17,7 @@ import {
   writeSplit,
 } from "../actual.js";
 import { categorizeOrder } from "../localai.js";
+import { config } from "../config.js";
 
 export const ordersRouter = Router();
 
@@ -90,6 +91,8 @@ ordersRouter.post("/", async (req, res) => {
 
 ordersRouter.get("/pending", (_req, res) => {
   const orders = getPendingOrders().map((o) => ({
+    payload: JSON.parse(o.payload_json),
+    taxRatePercent: config.server.taxRatePercent,
     id: o.id,
     retailer: o.retailer,
     orderId: o.external_order_id,
@@ -157,20 +160,25 @@ ordersRouter.post("/:id/approve", async (req, res) => {
 
   for (const link of links) {
     const sum = link.allocations.reduce((total, a) => total + a.amount, 0);
-    if (sum !== link.transactionAmount) {
+    const expectedAmount = Math.abs(link.transactionAmount);
+    if (sum !== expectedAmount) {
       res.status(400).json({
-        error: `Allocations for transaction ${link.transactionId} sum to ${sum}, expected ${link.transactionAmount}`,
+        error: `Allocations for transaction ${link.transactionId} sum to ${sum}, expected ${expectedAmount}`,
       });
       return;
     }
   }
 
   for (const link of links) {
+    const allocationSign = link.transactionAmount < 0 ? -1 : 1;
     await writeSplit({
       transactionId: link.transactionId,
       accountId: link.accountId,
       date: link.date,
-      allocations: link.allocations,
+      allocations: link.allocations.map((allocation) => ({
+        ...allocation,
+        amount: allocation.amount * allocationSign,
+      })),
       orderMarker: orderMarker(order.retailer, order.external_order_id),
     });
   }
