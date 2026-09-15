@@ -44,7 +44,7 @@ export async function categorizeOrder(params: {
           "Only use categories from the provided list. Respond with strict JSON matching this shape: " +
           '{"allocations": [{"item_name": string, "category_name": string, "amount": number}], ' +
           '"unallocated_amount": number, "notes": string}. ' +
-          "`amount` values are in the same currency unit as given (dollars). " +
+          "`amount` is the per-unit item price in dollars; the application multiplies it by quantity. " +
           "`unallocated_amount` should cover tax/shipping/fees not tied to a specific item. " +
           "For ambiguous everyday items, prefer this household's past choices over a generic guess, " +
           "for example:\n" +
@@ -56,7 +56,7 @@ export async function categorizeOrder(params: {
         role: "user",
         content: JSON.stringify({
           retailer: params.retailer,
-          grand_total: params.grandTotal,
+          grand_total: params.grandTotal / 100,
           items: params.items,
         }),
       },
