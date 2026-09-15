@@ -8,10 +8,15 @@
   "action": {
     "default_popup": "popup/popup.html"
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "actual-itemizer@example.com"
+    }
+  },
   "options_page": "options/options.html",
   "content_scripts": [
     {
-      "matches": ["https://www.amazon.com/gp/css/order-details*", "https://www.amazon.com/gp/your-account/order-details*"],
+      "matches": ["https://www.amazon.com/gp/css/order-details*", "https://www.amazon.com/gp/your-account/order-details*", "https://www.amazon.com/gp/css/summary/print.html*"],
       "js": ["content/common.js", "content/amazon.js"],
       "run_at": "document_idle"
     },
