@@ -27,6 +27,11 @@ window.__actualItemizerExtract = () => {
   const grandTotal = totalEl
     ? parseCurrencyToCents(totalEl.textContent)
     : items.reduce((sum, item) => sum + item.price * item.quantity * 100, 0);
+  const taxRow = [...document.querySelectorAll('[data-component="chargeSummary"] .od-line-item-row')]
+    .find((row) => row.textContent?.includes("Estimated tax to be collected"));
+  const taxAmount = taxRow
+    ? parseCurrencyToCents(taxRow.querySelector(".od-line-item-row-content")?.textContent ?? "0")
+    : null;
 
   if (!orderDate || items.length === 0) return null;
 
@@ -35,6 +40,7 @@ window.__actualItemizerExtract = () => {
     orderId,
     orderDate,
     grandTotal,
+    taxAmount,
     items,
   };
 };
