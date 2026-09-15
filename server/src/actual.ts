@@ -79,6 +79,7 @@ export async function findUncategorizedCandidates(opts: {
     const transactions = await api.getTransactions(account.id, opts.dateFrom, opts.dateTo);
     for (const t of transactions) {
       if (t.category != null) continue;
+      if (t.is_parent === true || t.is_child === true || t.parent_id != null) continue;
       if (t.payee == null || !matchingPayeeIds.has(t.payee)) continue;
       const payee = payees.find((p) => p.id === t.payee);
       results.push({
