@@ -7,27 +7,28 @@ step before anything is written to Actual.
 
 ## Components
 
-- `server/` — Node.js/TypeScript backend. Talks to `@actual-app/api` (Node-only,
-  no REST API exists), calls your local LLM for category suggestions, and
-  serves a small local review web UI at `http://127.0.0.1:<PORT>`.
+- `frontend/` — Next.js app. API route handlers under `app/api/` talk to
+  `@actual-app/api` (Node-only, no REST API exists) and call your local LLM
+  for category suggestions; the review UI is served at
+  `http://127.0.0.1:4000`.
 - `extension/` — Manifest V3 browser extension. Extracts item/price data from
-  an open Amazon or Target order-details page and POSTs it to the server.
+  an open Amazon or Target order-details page and POSTs it to the frontend.
 
 Full design notes and rationale live in the project plan (see chat history /
 `docs/`).
 
 ## Setup
 
-### 1. Backend
+### 1. Frontend (API + review UI)
 
 ```sh
-cd server
+cd frontend
 npm install
 cp .env.example .env   # fill in ACTUAL_* and LOCALAI_* values, pick a SHARED_SECRET
 npm run dev
 ```
 
-The server binds to `127.0.0.1` only and requires every `/api/*` request to
+The app binds to `127.0.0.1:4000` only and requires every `/api/*` request to
 carry `Authorization: Bearer <SHARED_SECRET>`.
 
 #### Connecting to a remote/HTTPS Actual server
@@ -51,7 +52,7 @@ Two things are separate from that:
 1. Open your browser's extensions page and enable "load unpacked", pointing at
    the `extension/` folder.
 2. Open the extension's options page and set the server URL (e.g.
-   `http://127.0.0.1:4000`) and the same `SHARED_SECRET` from `server/.env`.
+   `http://127.0.0.1:4000`) and the same `SHARED_SECRET` from `frontend/.env`.
 
 ### 3. Usage
 
