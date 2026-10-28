@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@actual-app/api": "^26.9.0",
+    "@actual-app/api": "^26.10.0",
     "better-sqlite3": "^13.0.3",
     "dotenv": "^17.4.2",
     "next": "16.3.5",
