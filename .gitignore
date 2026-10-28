@@ -9,4 +9,5 @@ dist/
 docs/transcripts
 .vscode
 server/.actual-cache
-server/data/
+frontend/.actual-cache
+data/*

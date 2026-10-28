@@ -1,7 +1,7 @@
 import * as api from "@actual-app/api";
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
-import { config } from "./config.js";
+import { config } from "../config";
 
 export interface Category {
   id: string;
@@ -23,28 +23,51 @@ export interface Allocation {
   notes?: string;
 }
 
-let initialized = false;
+// Next.js can load this module into multiple server module graphs (dev
+// reloads, per-route bundles), so initialization state lives on globalThis
+// to keep the Actual connection a true singleton.
+const globalForActual = globalThis as unknown as {
+  actualInitPromise?: Promise<void>;
+  actualShutdownHooksRegistered?: boolean;
+};
 
-export async function initActual(): Promise<void> {
-  if (initialized) return;
-  // @actual-app/api expects dataDir to already exist; it won't create it.
-  mkdirSync(config.actual.dataDir, { recursive: true });
-  await api.init({
-    serverURL: config.actual.serverURL,
-    password: config.actual.password,
-    dataDir: config.actual.dataDir,
+export function initActual(): Promise<void> {
+  globalForActual.actualInitPromise ??= (async () => {
+    // @actual-app/api expects dataDir to already exist; it won't create it.
+    mkdirSync(config.actual.dataDir, { recursive: true });
+    await api.init({
+      serverURL: config.actual.serverURL,
+      password: config.actual.password,
+      dataDir: config.actual.dataDir,
+    });
+    await api.downloadBudget(
+      config.actual.syncId,
+      config.actual.e2ePassword ? { password: config.actual.e2ePassword } : undefined,
+    );
+  })().catch((err) => {
+    // Don't cache a failed init; the next request should retry.
+    globalForActual.actualInitPromise = undefined;
+    throw err;
   });
-  await api.downloadBudget(
-    config.actual.syncId,
-    config.actual.e2ePassword ? { password: config.actual.e2ePassword } : undefined,
-  );
-  initialized = true;
+
+  if (!globalForActual.actualShutdownHooksRegistered) {
+    globalForActual.actualShutdownHooksRegistered = true;
+    const shutdown = () => {
+      void shutdownActual().finally(() => process.exit(0));
+    };
+    process.once("SIGINT", shutdown);
+    process.once("SIGTERM", shutdown);
+  }
+
+  return globalForActual.actualInitPromise;
 }
 
 export async function shutdownActual(): Promise<void> {
-  if (!initialized) return;
+  const initPromise = globalForActual.actualInitPromise;
+  if (!initPromise) return;
+  globalForActual.actualInitPromise = undefined;
+  await initPromise;
   await api.shutdown();
-  initialized = false;
 }
 
 export async function getAvailableCategories(): Promise<Category[]> {

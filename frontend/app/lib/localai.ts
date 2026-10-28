@@ -1,7 +1,21 @@
 import OpenAI from "openai";
-import { config } from "./config.js";
-import type { Category } from "./actual.js";
-import FEW_SHOT_EXAMPLES from "../data/category-examples.json" with { type: "json" };
+import { readFileSync } from "node:fs";
+import { config } from "../config";
+import type { Category } from "./actual";
+
+interface FewShotExample {
+  item: string;
+  category: string;
+}
+
+let cachedExamples: FewShotExample[] | null = null;
+
+// Read at call time instead of a static import: the file lives outside the
+// Next.js project root and is gitignored household data.
+function getFewShotExamples(): FewShotExample[] {
+  cachedExamples ??= JSON.parse(readFileSync(config.localai.examplesPath, "utf8")) as FewShotExample[];
+  return cachedExamples;
+}
 
 export interface OrderItem {
   name: string;
@@ -30,7 +44,7 @@ export async function categorizeOrder(params: {
   categories: Category[];
 }): Promise<CategorizationResult> {
   const categoryList = params.categories.map((c) => `${c.groupName} > ${c.name}`).join("\n");
-  const examplesText = FEW_SHOT_EXAMPLES.map((e) => `- "${e.item}" -> ${e.category}`).join("\n");
+  const examplesText = getFewShotExamples().map((e) => `- "${e.item}" -> ${e.category}`).join("\n");
 
   const response = await client.chat.completions.create({
     model: config.localai.model,

@@ -21,6 +21,8 @@ export const config = {
   localai: {
     baseURL: required("LOCALAI_BASE_URL"),
     model: process.env.LOCALAI_MODEL ?? "qwen2.5",
+    // Relative to the frontend/ working directory.
+    examplesPath: process.env.CATEGORY_EXAMPLES_PATH ?? "../data/category-examples.json",
   },
   server: {
     port: Number(process.env.PORT ?? 4000),
